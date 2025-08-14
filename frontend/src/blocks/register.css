@@ -1,0 +1,25 @@
+.register {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.register__title {
+  text-align: center;
+  font-size: 24px;
+  margin: 60px 0 50px 0;
+}
+.register__signin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.register__text {
+  margin-right: 12px;
+}
+
+.register__login-link {
+  color: white;
+  text-decoration: none;
+}

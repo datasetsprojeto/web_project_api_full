@@ -1,0 +1,21 @@
+.footer {
+  max-width: 880px;
+  width: 100%;
+  color: rgba(84, 84, 84, 1);
+  margin: 67px auto 60px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+@media screen and (max-width: 875px) {
+  .footer {
+    max-width: 580px;
+  }
+}
+
+@media screen and (max-width: 660px) {
+  .footer {
+    max-width: 282px;
+  }
+}

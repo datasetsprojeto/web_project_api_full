@@ -1,0 +1,234 @@
+.content {
+  margin: 0 auto;
+  max-width: 880px;
+  width: 100%;
+}
+.content__profile {
+  box-sizing: border-box;
+  display: flex;
+  margin-top: 40px;
+  height: 120px;
+  align-items: center;
+  margin-bottom: 51px;
+}
+
+.content__avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  width: 120px;
+  height: 120px;
+}
+
+.content__avatar:hover {
+  opacity: 0.2;
+}
+.content__avatar-edit {
+  width: 120px;
+  max-height: 120px;
+  background: url(../images/edit__avatar.png) center no-repeat;
+  cursor: pointer;
+}
+.content__profile-edit {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 auto 0 30px;
+  object-fit: contain;
+  box-sizing: border-box;
+}
+.content__wrap {
+  display: flex;
+  max-width: 415px;
+  height: 39px;
+}
+.content__title {
+  max-height: 43px;
+    height: 100;
+  font-size: 42px;
+  line-height: 48px;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: -1px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 373px;
+}
+
+.content__subtitle {
+  align-self: flex-start;
+  margin: 0;
+  margin-top: 16px;
+  font-size: 18px;
+  line-height: 22px;
+  max-width: 373px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.content__edit-button {
+  max-width: 24px;
+  width: 100%;
+  margin: 15px 0 0 10px;
+  cursor: pointer;
+  background: url(../images/Edit_Button.png);
+  padding: 0;
+  border: none;
+  background-repeat: no-repeat;
+}
+
+.content__edit-button:hover {
+  opacity: 0.6;
+}
+
+.content__add {
+  max-width: 150px;
+  width: 100%;
+  max-height: 50px;
+  height: 100%;
+  cursor: pointer;
+  background: url(../images/Add_Button.png);
+  border: none;
+  padding: 0;
+}
+
+.content__add:hover {
+  opacity: 0.6;
+}
+
+@media screen and (max-width: 875px) {
+  .content {
+    max-width: 720px;
+  }
+  .content__title {
+    font-size: 32px;
+    line-height: 38px;
+  }
+}
+
+@media screen and (max-width: 715px) {
+ .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .content__profile {
+    flex-direction: column;
+    max-width: 282px;
+    width: 100%;
+    align-items: center;
+    margin-top: 42px;
+    min-height: 295px;
+  }
+  .content__profile-edit {
+    margin: 0 auto;
+    max-width: 250px;
+    width: 100%;
+  }
+  .content__wrap {
+    max-width: 224px;
+    margin: 30px auto 0;
+    height: 22px;
+  }
+  .content__title {
+    font-size: 22px;
+    line-height: 26px;
+    height: 22px;
+    text-align: center;
+  }
+  .content__edit-button {
+    margin: 0 0 0 5px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .content__subtitle {
+    margin: 14px auto 36px;
+  }
+  .content__add {
+    background-image: url("../images/Add-Button.png");
+   max-width: 282px;
+   width: 100%;
+    height: 50px;
+    margin: 0 auto;
+  }
+}
+
+@media screen and (max-width: 675px) {
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .content__profile {
+    flex-direction: column;
+    max-width: 282px;
+    align-items: center;
+    margin-top: 42px;
+    min-height: 295px;
+  }
+  .content__profile-edit {
+    margin: 0 auto;
+  }
+  .content__wrap {
+    max-width: 224px;
+    margin: 30px auto 0;
+    height: 22px;
+  }
+  .content__title {
+    font-size: 22px;
+    line-height: 26px;
+    height: 22px;
+    text-align: center;
+  }
+  
+  .content__subtitle {
+    margin: 14px auto 36px;
+  }
+  .content__add {
+    width: 282px;
+    height: 50px;
+    margin: 0 auto;
+  }
+}
+
+
+@media screen and (max-width: 660px) {
+  .content__profile {
+    flex-direction: column;
+    align-items: center;
+    margin: 42px 0 36px 0;
+    min-height: 316px;
+  }
+  
+  .content__avatar-edit {
+    margin-bottom: 20px;
+  }
+  
+  .content__profile-edit {
+    margin: 0;
+    text-align: center;
+  }
+  
+  .content__wrap {
+    justify-content: center;
+  }
+  
+  .content__title {
+    text-align: center;
+    font-size: 22px;
+    line-height: 26px;
+  }
+  
+  .content__subtitle {
+    text-align: center;
+    margin: 14px auto;
+  }
+  
+  .content__add {
+    margin-top: 20px;
+  }
+}

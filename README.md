@@ -2,6 +2,12 @@
 
 Este projeto estende o aplicativo React "Around The U.S." com um sistema completo de autenticação. Implementa registro, login, rotas protegidas e integração com back-end, permitindo que usuários acessem conteúdo exclusivo após autenticação.
 
+## Acesso ao Servidor
+
+O aplicativo está disponível em: [https://seu-dominio.com](https://seu-dominio.com)
+
+A API pode ser acessada em: [https://seu-dominio.com/api](https://seu-dominio.com/api)
+
 ### Resumo de Implementação
 
 1. **Autenticação JWT**:
@@ -78,7 +84,12 @@ Este projeto estende o aplicativo React "Around The U.S." com um sistema complet
 ## Imagens e layout :
 
 ### Página de Login
-![Formulário de Login](./src/images/login-form.png)
+![Formulário de Login](./frontend/src/images/login-form.png)
 
 ### Página do Perfil
-![Perfil do Usuário](./src/images/profile-page.png)
+![Perfil do Usuário](./frontend/src/images/profile-page.png)
+
+
+
+
+Desenvolvido por Renato Soares Pereira.

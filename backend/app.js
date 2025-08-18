@@ -11,7 +11,8 @@ const { validateLogin, validateUserCreation } = require('./middlewares/validatio
 const { NOT_FOUND, SERVER_ERROR } = require('./utils/constants');
 
 const app = express();
-const { PORT = 3001 } = process.env;
+const port = process.env.PORT || 3001;
+
 
 const allowedOrigins = [
   'http://localhost:5173',

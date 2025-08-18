@@ -11,7 +11,7 @@ const { validateLogin, validateUserCreation } = require('./middlewares/validatio
 const { NOT_FOUND, SERVER_ERROR } = require('./utils/constants');
 
 const app = express();
-const port = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001;
 
 
 const allowedOrigins = [
@@ -40,8 +40,6 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/aroundb')
     console.error('❌ MongoDB connection error:', err);
     process.exit(1);
   });
-
-app.use(cors(corsOptions));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

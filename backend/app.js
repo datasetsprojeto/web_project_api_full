@@ -2,103 +2,94 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-const usersRouter = require('./routes/users');
-const cardsRouter = require('./routes/cards');
-const { login, createUser } = require('./controllers/users');
+const rateLimit = require('express-rate-limit');
+const { errors } = require('celebrate');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
+const { login, createUser } = require('./controllers/users');
 const { validateLogin, validateUserCreation } = require('./middlewares/validation');
+const { NOT_FOUND, SERVER_ERROR } = require('./utils/constants');
 
-mongoose.set('strictQuery', false);
-mongoose.connect('mongodb://localhost:27017/aroundb', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-
-const { PORT = 3001 } = process.env;
 const app = express();
+const { PORT = 3001 } = process.env;
 
-app.use(cors());
-app.options('*', cors());
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174'
+];
 
-// Middleware de logging simplificado
-app.use((req, res, next) => {
-  const logEntry = {
-    timestamp: new Date().toISOString(),
-    method: req.method,
-    path: req.path,
-    query: req.query,
-    body: req.body,
-    headers: req.headers
-  };
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://seu-frontend.com'
+  ],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 204
+};
 
-  // Log da requisição
-  console.log(`${req.method} ${req.path}`);
+app.use(cors(corsOptions));
 
-  // Salva em arquivo
-  fs.appendFile('request.log', JSON.stringify(logEntry) + '\n', (err) => {
-    if (err) console.error('Erro ao salvar log:', err);
+// Conexão com MongoDB (versão atualizada)
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/aroundb')
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch((err) => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
   });
 
+app.use(cors(corsOptions));
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(limiter);
+
+app.use(express.json());
+app.use(requestLogger);
+
+// Middleware para OPTIONS
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    return res.status(204).send();
+  }
   next();
 });
 
-app.use(express.json());
-
-// Rota de teste de crash
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('O servidor travará agora');
-  }, 0);
-});
-
-// Rotas de autenticação
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateUserCreation, createUser);
 
-// Middleware de autenticação
 app.use(auth);
 
-// Rotas protegidas
-app.use('/users', usersRouter);
-app.use('/cards', cardsRouter);
+app.use('/users', require('./routes/users'));
+app.use('/cards', require('./routes/cards'));
 
-// Rota não encontrada
 app.use((req, res) => {
-  res.status(404).send({ message: 'Recurso requisitado não encontrado' });
+  res.status(NOT_FOUND).send({ message: 'Recurso não encontrado' });
 });
 
-// Tratamento de erros centralizado
+app.use(errorLogger);
+app.use(errors());
+
+app.use((req, res, next) => {
+  console.log('Headers received:', req.headers);
+  next();
+});
+
 app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = statusCode === 500 ? 'Erro no servidor' : err.message;
-
-  // Log de erro simplificado
-  const errorLog = {
-    timestamp: new Date().toISOString(),
-    error: message,
-    stack: err.stack,
-    request: {
-      method: req.method,
-      path: req.path,
-      body: req.body
-    }
-  };
-
-  console.error(errorLog);
-
-  // Salva em arquivo
-  fs.appendFile('error.log', JSON.stringify(errorLog) + '\n', (err) => {
-    if (err) console.error('Erro ao salvar log de erro:', err);
-  });
-
-  res.status(statusCode).send({ message });
+  console.error('Unhandled Error:', err);
+  res.status(SERVER_ERROR).send({ message: 'Erro interno do servidor' });
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-})
-.on('error', (err) => {
-  console.error('Erro ao iniciar o servidor:', err);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

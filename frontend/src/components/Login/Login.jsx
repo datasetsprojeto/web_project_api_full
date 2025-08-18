@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { authorize } from '../../utils/auth';
 import InfoTooltip from '../InfoTooltip/InfoTooltip';
 
-function Login({ setLoggedIn }) {
+function Login({ onLogin }) {
   const [tooltipOpen, setToolTipOpen] = useState(false);
   const [tooltipSuccess, setToolTipSuccess] = useState(false);
   const [tooltipMessage, setToolTipMessage] = useState('');
@@ -54,14 +54,9 @@ function Login({ setLoggedIn }) {
   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      const userData = await authorize({ email, password });
-
-      if (userData.token) {
-        localStorage.setItem('jwt', userData.token);
-        localStorage.setItem('userEmail', email);
-        setLoggedIn(true);
-      }
-
+      const response = await authorize({ email, password });
+      onLogin(response.token, response.user);
+      
       setToolTipSuccess(true);
       setToolTipMessage('Login realizado com sucesso!');
       setToolTipOpen(true);
@@ -70,18 +65,15 @@ function Login({ setLoggedIn }) {
         setToolTipOpen(false);
         navigate('/');
       }, 1500);
-    } catch (status) {
-      console.error(`ERROR [LOGIN]: Código ${status}`);
+    } catch (error) {
+      console.error('Erro no login:', error.message);
 
       setToolTipSuccess(false);
-      setToolTipMessage(
-        status === 400
-          ? 'Por favor, preencha todos os dados solicitados!'
-          : 'Usuário não encontrado, tente novamente!'
-      );
+      setToolTipMessage(error.message || 'Usuário não encontrado, tente novamente!');
       setToolTipOpen(true);
     }
   }
+
   return (
     <div className="login">
       <h3 className="login__title">Entrar</h3>

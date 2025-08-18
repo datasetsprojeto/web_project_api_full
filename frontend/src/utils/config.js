@@ -1,2 +1,3 @@
+// Use apenas uma das URLs abaixo
 export const BASE_URL = 'http://localhost:3001'; 
-//export const BASE_URL = 'http://aroundusrsp.mooo.com';
+// export const BASE_URL = 'http://aroundusrsp.mooo.com';

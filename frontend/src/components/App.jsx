@@ -4,8 +4,8 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import { CurrentUserContext } from '../contexts/CurrentUserContext.js';
 import { api } from '../utils/api.js';
 import Header from './Header/Header';
-import Main from './Home/components/Main/Main.jsx'; // Importando Main diretamente
-import Footer from './Home/components/Footer/Footer.jsx'; // Importando Footer diretamente
+import Main from './Home/components/Main/Main.jsx';
+import Footer from './Home/components/Footer/Footer.jsx';
 import Login from './Login/Login';
 import Register from './Register/Register';
 import ProtectedRoute from './ProtectedRoute/ProtectedRoute';
@@ -17,65 +17,114 @@ function App() {
   const [currentUser, setCurrentUser] = useState({});
   const [cards, setCards] = useState([]);
   const [popup, setPopup] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Verificação de token e inicialização
   useEffect(() => {
-    const jwt = localStorage.getItem('jwt');
+  const jwt = localStorage.getItem('jwt');
+  if (jwt && !loggedIn) { 
+    setIsLoading(true);
+    checkToken(jwt)
+      .then((userData) => {
+        setLoggedIn(true);
+        setCurrentUser(userData);
+        navigate('/');
+        
+        return api.getData('cards');
+      })
+      .then((cardsData) => {
+        const normalizedCards = cardsData.map(card => ({
+          ...card,
+          likes: card.likes.map(like => like._id || like)
+        }));
+        setCards(normalizedCards);
+      })
+      .catch(error => {
+        console.error('Token verification failed:', error);
+        handleLogout();
+        setErrorMessage('Sessão expirada. Faça login novamente.');
+      })
+      .finally(() => setIsLoading(false));
+  }
+}, [navigate, loggedIn]); 
+
+  const handleLogin = (token, userData) => {
+    localStorage.setItem('jwt', token);
+    localStorage.setItem('userEmail', userData.email);
+    setLoggedIn(true);
+    setCurrentUser(userData);
+    navigate('/');
     
-    if (jwt) {
-      checkToken(jwt)
-        .then(() => {
-          setLoggedIn(true);
-          navigate('/');
-          
-          // Buscar dados do usuário
-          api.getData('users/me')
-            .then(setCurrentUser)
-            .catch(console.error);
-            
-          // Buscar cards
-          api.getData('cards')
-            .then(setCards)
-            .catch(console.error);
-        })
-        .catch(error => {
-          console.error('Token verification failed:', error);
-          handleLogout();
-        });
-    }
-  }, [navigate]);
+    // Atualizar cards após login
+    api.getData('cards')
+      .then(setCards)
+      .catch(console.error);
+  };
+
+  const handleRegister = (token, userData) => {
+  localStorage.setItem('jwt', token);
+  localStorage.setItem('userEmail', userData.email);
+  setLoggedIn(true);
+  setCurrentUser(userData);
+  navigate('/');
+  
+  // Atualizar cards após registro
+  api.getData('cards')
+    .then(cardsData => {
+      const normalizedCards = cardsData.map(card => ({
+        ...card,
+        likes: card.likes.map(like => like._id || like)
+      }));
+      setCards(normalizedCards);
+    })
+    .catch(console.error);
+
+  setPopup('success');
+  setTimeout(() => setPopup(null), 3000);
+};
 
   const handleLogout = () => {
     localStorage.removeItem('jwt');
     localStorage.removeItem('userEmail');
     setLoggedIn(false);
+    setCurrentUser({});
+    setCards([]);
     navigate('/login');
   };
 
   // Funções de popup
   const handleOpenPopup = (popupName) => setPopup(popupName);
-  const handleClosePopup = () => setPopup(null);
+  const handleClosePopup = () => {
+    setPopup(null);
+    setErrorMessage('');
+  };
 
   // Operações de usuário
   const handleUpdateUser = (data) => {
+    setIsLoading(true);
     api.profileEdit(data)
       .then(setCurrentUser)
-      .then(handleClosePopup)
-      .catch(error => console.error('Error updating profile:', error));
+      .then(() => handleClosePopup())
+      .catch(error => {
+        console.error('Error updating profile:', error);
+        setErrorMessage('Falha ao atualizar perfil. Tente novamente.');
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const handleUpdateAvatar = (url) => {
-  return api.avatarEdit(url)
-    .then(updatedUser => {
-      setCurrentUser(updatedUser);
-      handleClosePopup();
-      return updatedUser;
-    })
-    .catch(error => {
-      console.error('Error updating avatar:', error);
-      throw error; 
-    });
-};
+    setIsLoading(true);
+    return api.avatarEdit(url)
+      .then(setCurrentUser)
+      .then(() => handleClosePopup())
+      .catch(error => {
+        console.error('Error updating avatar:', error);
+        setErrorMessage('Falha ao atualizar avatar. Verifique o URL.');
+        throw error;
+      })
+      .finally(() => setIsLoading(false));
+  };
 
   // Operações de cards
   const handleCardLike = async (card) => {
@@ -89,6 +138,7 @@ function App() {
       setCards(prev => prev.map(c => c._id === card._id ? updatedCard : c));
     } catch (error) {
       console.error('Error toggling like:', error);
+      setErrorMessage('Falha ao curtir. Tente novamente.');
     }
   };
 
@@ -98,27 +148,33 @@ function App() {
       setCards(prev => prev.filter(c => c._id !== card._id));
     } catch (error) {
       console.error('Error deleting card:', error);
+      setErrorMessage('Falha ao excluir. Você só pode excluir seus próprios cards.');
     }
   };
 
   const handleAddPlaceSubmit = (card) => {
-  return api.sendCard(card)
-    .then(newCard => {
-      setCards(prev => [newCard, ...prev]);
-      handleClosePopup();
-      return newCard;
-    })
-    .catch(error => {
-      console.error('Error adding card:', error);
-      throw error; 
-    });
-};
+    setIsLoading(true);
+    return api.sendCard(card)
+      .then(newCard => {
+        setCards(prev => [newCard, ...prev]);
+        handleClosePopup();
+        return newCard;
+      })
+      .catch(error => {
+        console.error('Error adding card:', error);
+        setErrorMessage('Falha ao criar card. Verifique os dados.');
+        throw error;
+      })
+      .finally(() => setIsLoading(false));
+  };
 
   return (
     <CurrentUserContext.Provider
       value={{
         currentUser,
         cards,
+        isLoading,
+        errorMessage,
         handleUpdateUser,
         handleUpdateAvatar,
         handleCardLike,
@@ -127,27 +183,36 @@ function App() {
       }}
     >
       <div className="page">
-        <Header loggedIn={loggedIn} handleLogout={handleLogout} />
+        <Header 
+          loggedIn={loggedIn} 
+          userEmail={localStorage.getItem('userEmail')}
+          handleLogout={handleLogout} 
+        />
         
         <Routes>
           <Route
             path="/"
             element={
               <ProtectedRoute loggedIn={loggedIn}>
-                <>
-                  <Main
-                    popup={popup}
-                    onOpenPopup={handleOpenPopup}
-                    onClosePopup={handleClosePopup}
-                  />
-                  <Footer />
-                </>
+                <Main
+                  popup={popup}
+                  onOpenPopup={handleOpenPopup}
+                  onClosePopup={handleClosePopup}
+                />
               </ProtectedRoute>
             }
           />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login setLoggedIn={setLoggedIn} />} />
+          <Route 
+            path="/register" 
+            element={<Register onRegister={handleRegister} />} 
+          />
+          <Route 
+            path="/login" 
+            element={<Login onLogin={handleLogin} />} 
+          />
         </Routes>
+        
+        <Footer />
       </div>
     </CurrentUserContext.Provider>
   );

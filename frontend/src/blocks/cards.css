@@ -7,7 +7,9 @@
   row-gap: 17px;
   column-gap: 20px;
 }
+
 .cards__item {
+  position: relative; /* Para posicionar a lixeira */
   max-width: 100%;
   min-height: 361px;
   object-fit: cover;
@@ -18,6 +20,7 @@
   background-color: white;
   border-radius: 10px;
 }
+
 .cards__image {
   border-radius: 10px 10px 0 0;
   max-width: 282px;
@@ -25,30 +28,36 @@
   max-height: 282px;
   height: 100%;
 }
+
 .cards__trash {
   position: absolute;
-  align-self: flex-end;
-  margin: 15px 15px 0 0;
+  top: 15px;
+  right: 15px;
   cursor: pointer;
   content: url(../images/Trash.png);
   background-position: center;
   background-repeat: no-repeat;
+  z-index: 1; /* Garante que fique acima da imagem */
 }
+
 .cards__trash:hover {
   opacity: 0.6;
 }
+
 .cards__desc {
   color: black;
   display: flex;
+  justify-content: space-between; /* Alinha título e likes em lados opostos */
   align-items: center;
-  justify-content: center;
   width: 246px;
   height: 23px;
   margin: 25px 0 0;
+  padding: 0 5px;
+  box-sizing: border-box;
 }
 
 .cards__title {
-  width: 100%;
+  width: calc(100% - 50px); /* Deixa espaço para o container de likes */
   font-size: 24px;
   font-weight: 900;
   line-height: 29.05px;
@@ -56,6 +65,15 @@
   white-space: nowrap;
   overflow: hidden;
 }
+
+/* Container para o botão de like e contador */
+.cards__like-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
 .card__like-button {
   width: 24px;
   height: 22px;
@@ -70,8 +88,39 @@
 .card__like-button:hover {
   opacity: 0.6;
 }
+
 .card__like-button_is-active {
   background-image: url(../images/active__liked.png);
+}
+
+.cards__like-count {
+  font-size: 13px;
+  color: #000;
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* Estilos para o popup de confirmação */
+.popup__title-confirm {
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.popup__confirm-button {
+  width: 100%;
+  padding: 10px 0;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: opacity 0.3s;
+}
+
+.popup__confirm-button:hover {
+  opacity: 0.8;
 }
 
 @media screen and (max-width: 875px) {
@@ -88,5 +137,9 @@
     max-width: 282px;
     grid-template-columns: 1fr;
     grid-template-rows: repeat(1, 361px);
+  }
+  
+  .cards__title {
+    font-size: 20px;
   }
 }

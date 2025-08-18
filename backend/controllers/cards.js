@@ -1,17 +1,27 @@
 const Card = require('../models/card');
 const {
-  BAD_REQUEST_ERROR_CODE,
-  FORBIDDEN_ERROR_CODE,
-  NOT_FOUND_ERROR_CODE,
-  SERVER_ERROR_CODE,
+  BAD_REQUEST,
+  FORBIDDEN,
+  NOT_FOUND,
+  SERVER_ERROR
 } = require('../utils/constants');
 
 module.exports.getCards = async (req, res) => {
   try {
-    const cards = await Card.find({}).populate(['owner', 'likes']);
-    return res.send(cards);
+    const cards = await Card.find({})
+      .populate('owner', '_id name about avatar') // Mantenha apenas informações essenciais do dono
+      .select('-__v') // Remova campos desnecessários
+      .lean(); // Converta para objetos JavaScript simples
+
+    // Transforme os likes para conter apenas IDs
+    const transformedCards = cards.map(card => ({
+      ...card,
+      likes: card.likes.map(like => like._id ? like._id : like) // Mantenha apenas IDs
+    }));
+
+    return res.send(transformedCards);
   } catch (err) {
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro ao buscar cartões' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro ao buscar cartões' });
   }
 };
 
@@ -22,9 +32,9 @@ module.exports.createCard = async (req, res) => {
     return res.status(201).send(card);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Dados inválidos' });
+      return res.status(BAD_REQUEST).send({ message: 'Dados inválidos' });
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro ao criar cartão' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro ao criar cartão' });
   }
 };
 
@@ -33,24 +43,24 @@ module.exports.deleteCard = async (req, res) => {
     const card = await Card.findById(req.params.cardId)
       .orFail(() => {
         const error = new Error('Cartão não encontrado');
-        error.statusCode = NOT_FOUND_ERROR_CODE;
+        error.statusCode = NOT_FOUND;
         throw error;
       });
 
-    if (card.owner.toString() !== req.user._id) {
-      return res.status(FORBIDDEN_ERROR_CODE).send({ message: 'Permissão negada' });
+    if (!card.owner.equals(req.user._id)) {
+      return res.status(FORBIDDEN).send({ message: 'Permissão negada' });
     }
 
     await card.deleteOne();
     return res.send(card);
   } catch (err) {
     if (err.name === 'CastError') {
-      return res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'ID inválido' });
+      return res.status(BAD_REQUEST).send({ message: 'ID inválido' });
     }
-    if (err.statusCode === NOT_FOUND_ERROR_CODE) {
-      return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+    if (err.statusCode === NOT_FOUND) {
+      return res.status(NOT_FOUND).send({ message: err.message });
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro no servidor' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro no servidor' });
   }
 };
 
@@ -63,18 +73,18 @@ module.exports.likeCard = async (req, res) => {
     )
       .orFail(() => {
         const error = new Error('Cartão não encontrado');
-        error.statusCode = NOT_FOUND_ERROR_CODE;
+        error.statusCode = NOT_FOUND;
         throw error;
       });
     return res.send(card);
   } catch (err) {
     if (err.name === 'CastError') {
-      return res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'ID inválido' });
+      return res.status(BAD_REQUEST).send({ message: 'ID inválido' });
     }
-    if (err.statusCode === NOT_FOUND_ERROR_CODE) {
-      return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+    if (err.statusCode === NOT_FOUND) {
+      return res.status(NOT_FOUND).send({ message: err.message });
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro no servidor' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro no servidor' });
   }
 };
 
@@ -87,17 +97,17 @@ module.exports.dislikeCard = async (req, res) => {
     )
       .orFail(() => {
         const error = new Error('Cartão não encontrado');
-        error.statusCode = NOT_FOUND_ERROR_CODE;
+        error.statusCode = NOT_FOUND;
         throw error;
       });
     return res.send(card);
   } catch (err) {
     if (err.name === 'CastError') {
-      return res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'ID inválido' });
+      return res.status(BAD_REQUEST).send({ message: 'ID inválido' });
     }
-    if (err.statusCode === NOT_FOUND_ERROR_CODE) {
-      return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+    if (err.statusCode === NOT_FOUND) {
+      return res.status(NOT_FOUND).send({ message: err.message });
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro no servidor' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro no servidor' });
   }
 };

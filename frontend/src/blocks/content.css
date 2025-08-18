@@ -3,13 +3,14 @@
   max-width: 880px;
   width: 100%;
 }
+
 .content__profile {
   box-sizing: border-box;
   display: flex;
   margin-top: 40px;
-  height: 120px;
   align-items: center;
   margin-bottom: 51px;
+  gap: 30px; 
 }
 
 .content__avatar {
@@ -17,65 +18,66 @@
   object-fit: cover;
   width: 120px;
   height: 120px;
+  flex-shrink: 0; 
 }
 
 .content__avatar:hover {
   opacity: 0.2;
 }
+
 .content__avatar-edit {
   width: 120px;
   max-height: 120px;
   background: url(../images/edit__avatar.png) center no-repeat;
   cursor: pointer;
 }
+
 .content__profile-edit {
   display: flex;
-  align-items: center;
   flex-direction: column;
-  margin: 0 auto 0 30px;
-  object-fit: contain;
-  box-sizing: border-box;
+  flex: 1; 
+  min-width: 0; 
 }
+
 .content__wrap {
   display: flex;
-  max-width: 415px;
-  height: 39px;
+  align-items: center;
+  gap: 10px; 
 }
+
+/* Truncamento condicional - só aplica quando necessário */
 .content__title {
-  max-height: 43px;
-    height: 100;
   font-size: 42px;
   line-height: 48px;
   font-weight: 500;
   margin: 0;
   letter-spacing: -1px;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
-  max-width: 373px;
+  max-width: 100%; 
+  min-width: 50px;
 }
 
 .content__subtitle {
-  align-self: flex-start;
-  margin: 0;
-  margin-top: 16px;
+  margin: 16px 0 0;
   font-size: 18px;
   line-height: 22px;
-  max-width: 373px;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
+  max-width: 100%; 
 }
 
 .content__edit-button {
-  max-width: 24px;
-  width: 100%;
-  margin: 15px 0 0 10px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
   background: url(../images/Edit_Button.png);
   padding: 0;
   border: none;
   background-repeat: no-repeat;
+  flex-shrink: 0; 
 }
 
 .content__edit-button:hover {
@@ -83,152 +85,166 @@
 }
 
 .content__add {
-  max-width: 150px;
-  width: 100%;
-  max-height: 50px;
-  height: 100%;
+  width: 150px;
+  height: 50px;
   cursor: pointer;
   background: url(../images/Add_Button.png);
   border: none;
   padding: 0;
+  flex-shrink: 0; 
 }
 
 .content__add:hover {
   opacity: 0.6;
 }
 
-@media screen and (max-width: 875px) {
+@media screen and (max-width: 900px) {
   .content {
     max-width: 720px;
   }
+  
   .content__title {
-    font-size: 32px;
-    line-height: 38px;
+    font-size: 36px;
+    line-height: 42px;
   }
-}
-
-@media screen and (max-width: 715px) {
- .content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  .content__profile {
-    flex-direction: column;
-    max-width: 282px;
-    width: 100%;
-    align-items: center;
-    margin-top: 42px;
-    min-height: 295px;
-  }
-  .content__profile-edit {
-    margin: 0 auto;
-    max-width: 250px;
-    width: 100%;
-  }
-  .content__wrap {
-    max-width: 224px;
-    margin: 30px auto 0;
-    height: 22px;
-  }
-  .content__title {
-    font-size: 22px;
-    line-height: 26px;
-    height: 22px;
-    text-align: center;
-  }
-  .content__edit-button {
-    margin: 0 0 0 5px;
-    width: 30px;
-    height: 30px;
-  }
-
+  
   .content__subtitle {
-    margin: 14px auto 36px;
-  }
-  .content__add {
-    background-image: url("../images/Add-Button.png");
-   max-width: 282px;
-   width: 100%;
-    height: 50px;
-    margin: 0 auto;
+    font-size: 17px;
   }
 }
 
-@media screen and (max-width: 675px) {
+@media screen and (max-width: 768px) {
   .content {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 0 20px;
     margin-bottom: 10px;
   }
+  
   .content__profile {
     flex-direction: column;
-    max-width: 282px;
+    width: 100%;
+    max-width: 500px;
     align-items: center;
-    margin-top: 42px;
-    min-height: 295px;
-  }
-  .content__profile-edit {
-    margin: 0 auto;
-  }
-  .content__wrap {
-    max-width: 224px;
-    margin: 30px auto 0;
-    height: 22px;
-  }
-  .content__title {
-    font-size: 22px;
-    line-height: 26px;
-    height: 22px;
-    text-align: center;
-  }
-  
-  .content__subtitle {
-    margin: 14px auto 36px;
-  }
-  .content__add {
-    width: 282px;
-    height: 50px;
-    margin: 0 auto;
-  }
-}
-
-
-@media screen and (max-width: 660px) {
-  .content__profile {
-    flex-direction: column;
-    align-items: center;
-    margin: 42px 0 36px 0;
-    min-height: 316px;
-  }
-  
-  .content__avatar-edit {
-    margin-bottom: 20px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+    gap: 20px;
   }
   
   .content__profile-edit {
     margin: 0;
-    text-align: center;
+    width: 100%;
+    align-items: center;
   }
   
   .content__wrap {
+    width: 100%;
     justify-content: center;
   }
   
   .content__title {
+    font-size: 30px;
+    line-height: 36px;
     text-align: center;
-    font-size: 22px;
-    line-height: 26px;
   }
   
+  .content__edit-button {
+    margin: 0;
+  }
+
   .content__subtitle {
-    text-align: center;
     margin: 14px auto;
+    text-align: center;
+    max-width: 90%;
   }
   
   .content__add {
-    margin-top: 20px;
+    width: 100%;
+    max-width: 282px;
+    margin-top: 10px;
+    background-image: url(../images/Add-Button.png);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .content__title {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  
+  .content__subtitle {
+    font-size: 16px;
+    line-height: 20px;
+  }
+  
+  .content__wrap {
+    gap: 8px;
+  }
+  
+  .content__edit-button {
+    width: 20px;
+    height: 20px;
+    background-size: contain;
+  }
+}
+
+@media screen and (max-width: 374px) {
+  .content {
+    padding: 0 10px;
+  }
+  
+  .content__profile {
+    margin: 30px 0 25px 0;
+    min-height: 280px;
+    gap: 15px;
+  }
+  
+  .content__avatar,
+  .content__avatar-edit {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .content__wrap {
+    max-width: 220px;
+    height: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 15px;
+  }
+  
+  .content__title {
+    font-size: 18px;
+    line-height: 22px;
+    max-width: 200px;
+    height: auto;
+    letter-spacing: normal;
+  }
+  
+  .content__edit-button {
+    width: 20px;
+    height: 20px;
+    margin: 0 0 0 8px;
+  }
+  
+  .content__subtitle {
+    font-size: 14px;
+    line-height: 18px;
+    max-width: 260px;
+    margin: 10px auto;
+    text-align: center;
+  }
+  
+  .content__add {
+    max-width: 260px;
+    height: 45px;
+    margin-top: 10px;
+    background-size: 100%;
+    background-repeat: no-repeat;
+  }
+  
+  .content__profile-edit {
+    max-width: 100%;
   }
 }

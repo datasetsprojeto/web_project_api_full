@@ -51,6 +51,7 @@ function Main({ onOpenPopup, onClosePopup, popup }) {
           <Card
             key={card._id}
             card={card}
+            currentUserId={currentUser._id}
             handleOpenPopup={onOpenPopup}
             onCardLike={handleCardLike}
             onCardDelete={handleCardDelete}

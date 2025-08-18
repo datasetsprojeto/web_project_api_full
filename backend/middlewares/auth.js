@@ -1,22 +1,30 @@
 const jwt = require('jsonwebtoken');
-const { UNAUTHORIZED_ERROR_CODE } = require('../utils/constants');
+const { UNAUTHORIZED } = require('../utils/constants');
 
 module.exports = (req, res, next) => {
-  const { authorization } = req.headers;
+  const authHeader = req.headers.authorization;
 
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res.status(UNAUTHORIZED_ERROR_CODE).send({ message: 'Autorização necessária' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(UNAUTHORIZED).send({ message: 'Token de autorização ausente' });
   }
 
-  const token = authorization.replace('Bearer ', '');
-  let payload;
+  const token = authHeader.split(' ')[1];
 
   try {
-    payload = jwt.verify(token, process.env.JWT_SECRET || 'secret-key');
-  } catch (err) {
-    return res.status(UNAUTHORIZED_ERROR_CODE).send({ message: 'Autorização necessária' });
-  }
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET || 'fallback_secret_key'
+    );
 
-  req.user = payload;
-  next();
+    req.user = payload;
+    next();
+  } catch (err) {
+    console.error('Token verification failed:', err);
+
+    if (err.name === 'TokenExpiredError') {
+      return res.status(UNAUTHORIZED).send({ message: 'Token expirado' });
+    }
+
+    return res.status(UNAUTHORIZED).send({ message: 'Token inválido' });
+  }
 };

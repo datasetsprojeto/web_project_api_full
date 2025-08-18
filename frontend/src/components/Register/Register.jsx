@@ -4,19 +4,30 @@ import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../../utils/auth';
 import InfoTooltip from '../InfoTooltip/InfoTooltip';
 
-function Register() {
+function Register({ onRegister }) {
   const [tooltipOpen, setToolTipOpen] = useState(false);
   const [tooltipSuccess, setToolTipSuccess] = useState(false);
   const [tooltipMessage, setToolTipMessage] = useState('');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [nameError, setNameError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Validação de nome
+    if (!name) {
+      setNameError('O nome é obrigatório');
+    } else if (name.length < 2) {
+      setNameError('O nome deve ter pelo menos 2 caracteres');
+    } else {
+      setNameError('');
+    }
+
     // Validação de email
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -38,10 +49,15 @@ function Register() {
 
     // Validação geral do formulário
     setIsFormValid(
+      name && name.length >= 2 &&
       emailPattern.test(email) && 
       password && password.length >= 6
     );
-  }, [email, password]);
+  }, [name, email, password]);
+
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  };
 
   const handleEmailChange = (event) => {
     setEmail(event.target.value);
@@ -54,20 +70,22 @@ function Register() {
   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      await register({ email, password });
+      const response = await register({ name, email, password });
+      onRegister(response.token, response.user);
+      
       setToolTipSuccess(true);
-      setToolTipMessage('Vitória! Você precisa se registrar.');
+      setToolTipMessage('Registro realizado com sucesso!');
       setToolTipOpen(true);
 
       setTimeout(() => {
         setToolTipOpen(false);
-        navigate('/login');
+        navigate('/');
       }, 2000);
-    } catch {
-      console.error('Erro no registro');
+    } catch (error) {
+      console.error('Erro no registro:', error.message);
 
       setToolTipSuccess(false);
-      setToolTipMessage('Dados inválidos, tente novamente!');
+      setToolTipMessage(error.message || 'Dados inválidos, tente novamente!');
       setToolTipOpen(true);
     }
   }
@@ -81,6 +99,19 @@ function Register() {
         noValidate
         onSubmit={handleSubmit}
       >
+        <fieldset className="form__input-block">
+          <input
+            type="text"
+            className={`form__input form__input_theme_dark ${nameError ? 'form__input_type_error' : ''}`}
+            required
+            placeholder="Nome"
+            minLength="2"
+            maxLength="30"
+            value={name}
+            onChange={handleNameChange}
+          />
+          <span className="form__error form__error_theme_dark">{nameError}</span>
+        </fieldset>
         <fieldset className="form__input-block">
           <input
             type="email"

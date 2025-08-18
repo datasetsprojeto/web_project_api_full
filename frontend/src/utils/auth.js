@@ -4,31 +4,36 @@ import { BASE_URL } from './config';
 async function makeRequest(url, options) {
   try {
     const response = await fetch(url, options);
+    const data = await response.json();
     
     if (!response.ok) {
-      // Tenta extrair a mensagem de erro do corpo da resposta
-      let errorMessage = `HTTP error! status: ${response.status}`;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-      } catch (e) {
-        // Não foi possível parsear o JSON de erro
-      }
-      throw new Error(errorMessage);
+      const error = new Error(data.message || `Erro ${response.status}`);
+      error.status = response.status;
+      throw error;
     }
     
-    return response.json();
+    return data;
   } catch (error) {
     console.error('Request failed:', error.message);
     throw error;
   }
 }
 
-export const register = ({ email, password }) => {
+export const register = ({ name, email, password }) => {
   return makeRequest(`${BASE_URL}/signup`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ name, email, password }),
+  }).then(data => {
+    return {
+      token: data.token,
+      user: {
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        avatar: data.avatar
+      }
+    };
   });
 };
 

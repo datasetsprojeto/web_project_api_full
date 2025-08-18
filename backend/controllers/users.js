@@ -2,11 +2,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
-  BAD_REQUEST_ERROR_CODE,
-  UNAUTHORIZED_ERROR_CODE,
-  NOT_FOUND_ERROR_CODE,
-  CONFLICT_ERROR_CODE,
-  SERVER_ERROR_CODE,
+  BAD_REQUEST,
+  UNAUTHORIZED,
+  NOT_FOUND,
+  CONFLICT,
+  SERVER_ERROR
 } = require('../utils/constants');
 
 module.exports.getUsers = async (req, res) => {
@@ -14,7 +14,7 @@ module.exports.getUsers = async (req, res) => {
     const users = await User.find({});
     return res.send(users);
   } catch (err) {
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro ao buscar usuários' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro ao buscar usuários' });
   }
 };
 
@@ -23,18 +23,18 @@ module.exports.getUserById = async (req, res) => {
     const user = await User.findById(req.params.userId)
       .orFail(() => {
         const error = new Error('Usuário não encontrado');
-        error.statusCode = NOT_FOUND_ERROR_CODE;
+        error.statusCode = NOT_FOUND;
         throw error;
       });
     return res.send(user);
   } catch (err) {
     if (err.name === 'CastError') {
-      return res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'ID inválido' });
+      return res.status(BAD_REQUEST).send({ message: 'ID inválido' });
     }
-    if (err.statusCode === NOT_FOUND_ERROR_CODE) {
-      return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+    if (err.statusCode === NOT_FOUND) {
+      return res.status(NOT_FOUND).send({ message: err.message });
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro no servidor' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro no servidor' });
   }
 };
 
@@ -56,12 +56,12 @@ module.exports.createUser = async (req, res) => {
     });
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Dados inválidos' });
+      return res.status(BAD_REQUEST).send({ message: 'Dados inválidos' });
     }
     if (err.code === 11000) {
-      return res.status(CONFLICT_ERROR_CODE).send({ message: 'E-mail já cadastrado' });
+      return res.status(CONFLICT).send({ message: 'E-mail já cadastrado' });
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro ao criar usuário' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro ao criar usuário' });
   }
 };
 
@@ -75,18 +75,18 @@ module.exports.updateProfile = async (req, res) => {
     )
       .orFail(() => {
         const error = new Error('Usuário não encontrado');
-        error.statusCode = NOT_FOUND_ERROR_CODE;
+        error.statusCode = NOT_FOUND;
         throw error;
       });
     return res.send(user);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Dados inválidos' });
+      return res.status(BAD_REQUEST).send({ message: 'Dados inválidos' });
     }
-    if (err.statusCode === NOT_FOUND_ERROR_CODE) {
-      return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+    if (err.statusCode === NOT_FOUND) {
+      return res.status(NOT_FOUND).send({ message: err.message });
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro no servidor' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro no servidor' });
   }
 };
 
@@ -100,44 +100,53 @@ module.exports.updateAvatar = async (req, res) => {
     )
       .orFail(() => {
         const error = new Error('Usuário não encontrado');
-        error.statusCode = NOT_FOUND_ERROR_CODE;
+        error.statusCode = NOT_FOUND;
         throw error;
       });
     return res.send(user);
   } catch (err) {
     if (err.name === 'ValidationError') {
-      return res.status(BAD_REQUEST_ERROR_CODE).send({ message: 'Dados inválidos' });
+      return res.status(BAD_REQUEST).send({ message: 'Dados inválidos' });
     }
-    if (err.statusCode === NOT_FOUND_ERROR_CODE) {
-      return res.status(NOT_FOUND_ERROR_CODE).send({ message: err.message });
+    if (err.statusCode === NOT_FOUND) {
+      return res.status(NOT_FOUND).send({ message: err.message });
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro no servidor' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro no servidor' });
   }
 };
 
 module.exports.login = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = req.body;
+
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(UNAUTHORIZED_ERROR_CODE).send({ message: 'E-mail ou senha incorretos' });
+      return res.status(UNAUTHORIZED).send({ message: 'Email ou senha incorretos' });
     }
 
-    const matched = await bcrypt.compare(password, user.password);
-    if (!matched) {
-      return res.status(UNAUTHORIZED_ERROR_CODE).send({ message: 'E-mail ou senha incorretos' });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(UNAUTHORIZED).send({ message: 'Email ou senha incorretos' });
     }
 
     const token = jwt.sign(
       { _id: user._id },
-      process.env.JWT_SECRET || 'secret-key',
-      { expiresIn: '7d' },
+      process.env.JWT_SECRET || 'fallback_secret_key',
+      { expiresIn: '7d', algorithm: 'HS256' }
     );
 
-    return res.send({ token });
+  res.send({
+      token,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar
+      }
+    });
   } catch (err) {
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro no servidor' });
+    console.error('Login Error:', err);
+    res.status(SERVER_ERROR).send({ message: 'Erro no servidor' });
   }
 };
 
@@ -145,10 +154,10 @@ module.exports.getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
     if (!user) {
-      return res.status(NOT_FOUND_ERROR_CODE).send({ message: 'Usuário não encontrado' });
+      return res.status(NOT_FOUND).send({ message: 'Usuário não encontrado' });
     }
     return res.send(user);
   } catch (err) {
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Erro no servidor' });
+    return res.status(SERVER_ERROR).send({ message: 'Erro no servidor' });
   }
 };

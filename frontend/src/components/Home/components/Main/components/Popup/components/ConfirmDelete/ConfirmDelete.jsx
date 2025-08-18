@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-export default function ConfirmDelete({ onConfirm, onCancel }) {
+export default function ConfirmDelete({ onConfirm, onCancel, isOwner }) {
   useEffect(() => {
     const handleEscClose = (e) => {
       if (e.key === 'Escape') onCancel();
@@ -21,14 +21,33 @@ export default function ConfirmDelete({ onConfirm, onCancel }) {
           onClick={onCancel}
         />
         <div className="popup__block-confirm">
-          <h3 className="popup__title-confirm">Tem certeza?</h3>
-          <button
-            type="button"
-            className="popup__confirm-button"
-            onClick={onConfirm}
-          >
-            Sim
-          </button>
+          {isOwner ? (
+            // Mensagem para o dono do card
+            <>
+              <h3 className="popup__title-confirm">Tem certeza?</h3>
+              <button
+                type="button"
+                className="popup__confirm-button"
+                onClick={onConfirm}
+              >
+                Sim
+              </button>
+            </>
+          ) : (
+            // Mensagem para não-donos
+            <>
+              <h3 className="popup__title-confirm">
+                Você não pode deletar esse card, você não é o criador!
+              </h3>
+              <button
+                type="button"
+                className="popup__confirm-button"
+                onClick={onCancel}
+              >
+                Fechar
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

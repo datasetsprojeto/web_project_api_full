@@ -16,14 +16,15 @@ const PORT = process.env.PORT || 3001;
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'http://localhost:5174'
+  'http://localhost:5174',
+  'http://aroundusrsp.chickenkiller.com',
 ];
 
 const corsOptions = {
   origin: [
     'http://localhost:5173',
     'http://localhost:5174',
-    'http://seu-frontend.com'
+    'http://aroundusrsp.chickenkiller.com',
   ],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   allowedHeaders: ['Content-Type', 'Authorization'],

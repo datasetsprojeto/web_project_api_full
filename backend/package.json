@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "lint": "npx eslint .",
+    "lint:fix": "eslint --fix .",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },

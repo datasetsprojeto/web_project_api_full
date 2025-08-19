@@ -22,6 +22,7 @@ function Main({ onOpenPopup, onClosePopup, popup }) {
     return [...cards].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }, [cards]);
 
+  
   return (
     <main className="content">
       <div className="content__profile">

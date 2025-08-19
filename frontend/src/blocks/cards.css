@@ -34,10 +34,13 @@
   top: 15px;
   right: 15px;
   cursor: pointer;
-  content: url(../images/Trash.png);
-  background-position: center;
-  background-repeat: no-repeat;
-  z-index: 1; /* Garante que fique acima da imagem */
+  width: 18px;
+  height: 19px;
+  background: url(../images/Trash.png) center no-repeat;
+  background-size: contain;
+  border: none;
+  padding: 0;
+  z-index: 1;
 }
 
 .cards__trash:hover {

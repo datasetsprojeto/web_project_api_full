@@ -52,6 +52,17 @@
   cursor: pointer;
 }
 
+.popup__close_content_image {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  background: url(../images/Close_Iconexix.svg) center no-repeat;
+  width: 40px;
+  height: 40px;
+  border: none;
+  cursor: pointer;
+}
+
 .popup__block-confirm {
   display: flex;
   flex-direction: column;
@@ -88,10 +99,6 @@
 
 .popup__confirm-button:active {
   transform: scale(0.98);
-}
-
-.popup__close_content_image {
-  margin: 0;
 }
 
 .popup__block {
@@ -143,12 +150,20 @@
   max-width: 100%;
   max-height: 600px;
   margin: auto;
+  position: relative;
 }
 
 .popup__zoom-title {
   margin-top: 10px;
   font-size: 12px;
   font-weight: normal;
+}
+
+.popup__text-confirm {
+ color: #000;
+ font-size: 24px;
+font-weight: 900;
+ text-align: center;
 }
 
 @media screen and (max-width: 660px) {
@@ -158,6 +173,14 @@
   .popup__close {
     margin-bottom: 13px;
   }
+
+   .popup__close_content_image {
+    top: -36px;
+    right: 0;
+    width: 30px;
+    height: 30px;
+  }
+
   .popup__title {
     align-self: flex-start;
     color: black;

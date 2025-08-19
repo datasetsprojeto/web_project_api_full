@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 
 export default function Popup(props) {
-  const { onClose, title, children } = props;
+  const { onClose, title, children, type } = props; // Adicione type como prop
   const popupRef = useRef();
 
   useEffect(() => {
@@ -31,18 +31,19 @@ export default function Popup(props) {
         className="popup__content"
         ref={popupRef}
       >
-        <button
-          aria-label="Close modal"
-          className={`popup__close ${
-            !title ? "popup__close_content_image" : ""
-          }`}
-          type="button"
-          onClick={onClose}
-        />
+        {/* Só mostra o botão de fechar para popups que não são de imagem */}
+        {type !== 'image' && (
+          <button
+            aria-label="Close modal"
+            className="popup__close"
+            type="button"
+            onClick={onClose}
+          />
+        )}
         <div
-          className={`${title ? "popup__block" : "popup__block_content_image"}`}
+          className={`${type === 'image' ? 'popup__block_content_image' : 'popup__block'}`}
         >
-          <h3 className="popup__title">{title}</h3>
+          {title && <h3 className="popup__title">{title}</h3>}
           {children}
         </div>
       </div>

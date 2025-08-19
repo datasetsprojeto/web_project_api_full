@@ -1,57 +1,99 @@
-import { BASE_URL } from './config';
+import { API_BASE_URL, AUTH_TOKEN_KEY } from './config';
 
 class Api {
-  constructor({ baseUrl, headers }) {
+  constructor({ baseUrl }) {
     this._baseUrl = baseUrl;
-    this._headers = headers;
   }
 
-  async _request(endpoint, method, body = null) {
-  const url = `${this._baseUrl}/${endpoint.replace(/^\//, '')}`;
-  
-  const options = {
-    method,
-    headers: this._headers,
-  };
-  
-  if (body) {
-    options.body = JSON.stringify(body);
-  }
-  
-  const token = localStorage.getItem('jwt');
-  if (token) {
-    options.headers = {
-      ...options.headers,
-      Authorization: `Bearer ${token}`,
-    };
-  }
-  
-  try {
-    const response = await fetch(url, options);
+  async _request(endpoint, method, body = null, retries = 3) {
+    const url = `${this._baseUrl}/${endpoint.replace(/^\//, '')}`;
     
-    // Verifique se a resposta é JSON antes de tentar parsear
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      throw new Error(text || `Erro ${response.status}`);
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
     
-    const data = await response.json();
+    const options = {
+      method,
+      headers,
+      credentials: 'include'
+    };
     
-    if (!response.ok) {
-      const error = new Error(data.message || `Erro ${response.status}`);
-      error.status = response.status;
+    if (body) {
+      options.body = JSON.stringify(body);
+    }
+    
+    try {
+      // Create timeout promise
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Request timeout')), 10000)
+      );
+      
+      // Create fetch promise
+      const fetchPromise = fetch(url, options);
+      
+      // Race between fetch and timeout
+      const response = await Promise.race([fetchPromise, timeoutPromise]);
+      
+      // Check if response is valid (not a timeout error)
+      if (!(response instanceof Response)) {
+        throw new Error('Request timeout');
+      }
+      
+      // Read response as text first
+      const text = await response.text();
+      let data;
+      
+      // Try to parse as JSON if content-type indicates JSON
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          throw new Error(`Invalid JSON response: ${text}`);
+        }
+      } else {
+        data = text;
+      }
+      
+      if (!response.ok) {
+        let errorMessage = data.message || `Erro ${response.status}`;
+        
+        // Handle rate limiting specifically
+        if (response.status === 429) {
+          errorMessage = 'Muitas requisições. Tente novamente em alguns minutos.';
+        }
+        
+        const error = new Error(errorMessage);
+        error.status = response.status;
+        throw error;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error(`API Error [${method} ${endpoint}]:`, error);
+      
+      // Retry logic for rate limiting
+      if (error.status === 429 && retries > 0) {
+        console.log(`Retrying request (${retries} attempts left)...`);
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+        return this._request(endpoint, method, body, retries - 1);
+      }
+      
+      // Verificar se é erro de conexão
+      if (error.message === 'Failed to fetch' || error.message === 'Request timeout') {
+        throw new Error('Erro de conexão com o servidor');
+      }
+      
       throw error;
     }
-    
-    return data;
-  } catch (error) {
-    console.error(`API Error [${method} ${endpoint}]:`, error);
-    throw error;
   }
-}
 
-  // Métodos públicos utilizando _request
+  // Métodos públicos (unchanged)
   getData(path) {
     return this._request(path, "GET");
   }
@@ -82,8 +124,5 @@ class Api {
 }
 
 export const api = new Api({
-  baseUrl: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseUrl: API_BASE_URL
 });

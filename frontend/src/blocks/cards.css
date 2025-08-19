@@ -123,6 +123,16 @@
   opacity: 0.8;
 }
 
+.cards__empty-message {
+  max-width: max-content;
+  width: 100%;
+  margin: 0 auto;
+  font-size: 18px;
+  color: #999;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
 @media screen and (max-width: 875px) {
   .cards {
     max-width: 581px;

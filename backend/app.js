@@ -13,28 +13,21 @@ const { NOT_FOUND, SERVER_ERROR } = require('./utils/constants');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'http://aroundusrsp.chickenkiller.com',
-];
-
+// Configuração do CORS
 const corsOptions = {
   origin: [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://aroundusrsp.chickenkiller.com',
-  ],
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    'http://localhost:3001',      // Frontend local
+    'http://localhost:5173',      // Vite dev server
+    process.env.FRONTEND_URL,     // URL de produção
+  ].filter(Boolean),
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
 
-// Conexão com MongoDB (versão atualizada)
+// Conexão com MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/aroundb')
   .then(() => console.log('✅ Connected to MongoDB'))
   .catch((err) => {
@@ -44,47 +37,36 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/aroundb')
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000,
+  message: 'Muitas requisições. Tente novamente mais tarde.',
   standardHeaders: true,
   legacyHeaders: false,
 });
-
-app.use(limiter);
-
 app.use(express.json());
 app.use(requestLogger);
+app.use(limiter);
 
-// Middleware para OPTIONS
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.header('Access-Control-Allow-Credentials', 'true');
-    return res.status(204).send();
-  }
-  next();
-});
-
+// Rotas públicas
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateUserCreation, createUser);
 
+// Middleware de autenticação
 app.use(auth);
 
+// Rotas protegidas
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
+// Rota não encontrada
 app.use((req, res) => {
   res.status(NOT_FOUND).send({ message: 'Recurso não encontrado' });
 });
 
+// Log de erros
 app.use(errorLogger);
 app.use(errors());
 
-app.use((req, res, next) => {
-  console.log('Headers received:', req.headers);
-  next();
-});
-
+// Middleware de erro global
 app.use((err, req, res, next) => {
   console.error('Unhandled Error:', err);
   res.status(SERVER_ERROR).send({ message: 'Erro interno do servidor' });

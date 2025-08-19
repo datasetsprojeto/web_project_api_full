@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 import { CurrentUserContext } from '../../../../contexts/CurrentUserContext.js';
 
 import Card from './components/Card/Card';
@@ -15,8 +15,12 @@ function Main({ onOpenPopup, onClosePopup, popup }) {
     children: <EditProfile />,
   };
 
-  // Obter dados do contexto
   const { currentUser, cards, handleCardLike, handleCardDelete } = useContext(CurrentUserContext);
+
+  // Ordenar os cartões do mais novo para o mais antigo
+  const sortedCards = useMemo(() => {
+    return [...cards].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }, [cards]);
 
   return (
     <main className="content">
@@ -46,8 +50,15 @@ function Main({ onOpenPopup, onClosePopup, popup }) {
           onClick={() => onOpenPopup(newCardPopup)}
         />
       </div>
-      <section className="cards">
-        {cards.map((card) => (
+
+      {/* Mensagem fora da section */}
+      {cards.length === 0 && (
+        <p className="cards__empty-message">Não há cards criados ainda!</p>
+      )}
+
+      {/* Section de cards (sempre renderizada) */}
+      <section className={`cards ${cards.length === 0 ? 'cards_empty' : ''}`}>
+        {sortedCards.map((card) => (
           <Card
             key={card._id}
             card={card}
@@ -58,6 +69,7 @@ function Main({ onOpenPopup, onClosePopup, popup }) {
           />
         ))}
       </section>
+
       {popup && (
         <Popup onClose={onClosePopup} title={popup.title}>
           {popup.children}

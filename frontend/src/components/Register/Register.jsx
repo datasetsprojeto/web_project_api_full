@@ -12,9 +12,11 @@ function Register({ onRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [about, setAbout] = useState(''); // Novo estado para about
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [nameError, setNameError] = useState('');
+  const [aboutError, setAboutError] = useState(''); // Novo estado para erro do about
   const [isFormValid, setIsFormValid] = useState(false);
   const navigate = useNavigate();
 
@@ -26,6 +28,17 @@ function Register({ onRegister }) {
       setNameError('O nome deve ter pelo menos 2 caracteres');
     } else {
       setNameError('');
+    }
+
+    // Validação de about
+    if (!about) {
+      setAboutError('A descrição é obrigatória');
+    } else if (about.length < 2) {
+      setAboutError('A descrição deve ter pelo menos 2 caracteres');
+    } else if (about.length > 30) {
+      setAboutError('A descrição deve ter no máximo 30 caracteres');
+    } else {
+      setAboutError('');
     }
 
     // Validação de email
@@ -50,13 +63,18 @@ function Register({ onRegister }) {
     // Validação geral do formulário
     setIsFormValid(
       name && name.length >= 2 &&
+      about && about.length >= 2 && about.length <= 30 &&
       emailPattern.test(email) && 
       password && password.length >= 6
     );
-  }, [name, email, password]);
+  }, [name, about, email, password]); 
 
   const handleNameChange = (event) => {
     setName(event.target.value);
+  };
+
+  const handleAboutChange = (event) => {
+    setAbout(event.target.value);
   };
 
   const handleEmailChange = (event) => {
@@ -67,10 +85,10 @@ function Register({ onRegister }) {
     setPassword(event.target.value);
   };
 
-  async function handleSubmit(event) {
+   async function handleSubmit(event) {
     event.preventDefault();
     try {
-      const response = await register({ name, email, password });
+      const response = await register({ name, about, email, password }); 
       onRegister(response.token, response.user);
       
       setToolTipSuccess(true);
@@ -111,6 +129,21 @@ function Register({ onRegister }) {
             onChange={handleNameChange}
           />
           <span className="form__error form__error_theme_dark">{nameError}</span>
+        </fieldset>
+        
+        {/* Novo campo para about */}
+        <fieldset className="form__input-block">
+          <input
+            type="text"
+            className={`form__input form__input_theme_dark ${aboutError ? 'form__input_type_error' : ''}`}
+            required
+            placeholder="Sobre mim"
+            minLength="2"
+            maxLength="30"
+            value={about}
+            onChange={handleAboutChange}
+          />
+          <span className="form__error form__error_theme_dark">{aboutError}</span>
         </fieldset>
         <fieldset className="form__input-block">
           <input

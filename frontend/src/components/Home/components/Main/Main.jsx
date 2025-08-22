@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { CurrentUserContext } from '../../../../contexts/CurrentUserContext.js';
 import Card from './components/Card/Card';
-import ImagePopup  from './components/ImagePopup/ImagePopup.jsx';
+import ImagePopup from './components/ImagePopup/ImagePopup.jsx';
 
 function Main({ onOpenPopup }) {
   const { currentUser, cards, handleCardLike, handleCardDelete } = useContext(CurrentUserContext);
@@ -38,18 +38,18 @@ function Main({ onOpenPopup }) {
           onClick={() => onOpenPopup('new-card')}
         />
       </div>
-       
+
       {/* Mensagem quando não há cards */}
       {cards.length === 0 && (
         <div className="content__no-cards">
           <p className="content__no-cards-text">Nenhum card encontrado. Adicione o primeiro!</p>
         </div>
       )}
-      
+
       {/* Seção de cards (só aparece quando há cards) */}
       {cards.length > 0 && (
         <section className="cards">
-          {cards.map((card) => (
+          {[...cards].reverse().map((card) => (
             <Card
               key={card._id}
               card={card}

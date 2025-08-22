@@ -2,7 +2,7 @@
   margin: 0 auto;
   max-width: 880px;
   width: 100%;
-  min-height: calc(100vh - 200px); /* Garante que o conteúdo ocupe altura mínima */
+  min-height: calc(100vh - 200px);
 }
 
 .content__profile {
@@ -73,7 +73,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
+  max-width: 382px;
+  width: 100%;
   min-width: 50px;
 }
 
@@ -84,7 +85,8 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
+  max-width: 382px;
+  width: 100%;
 }
 
 .content__edit-button {
@@ -203,7 +205,6 @@
   .content__subtitle {
     margin: 14px auto;
     text-align: center;
-    max-width: 90%;
   }
   
   .content__add {
@@ -281,6 +282,7 @@
     font-size: 18px;
     line-height: 22px;
     max-width: 200px;
+    width: 100%;
     height: auto;
     letter-spacing: normal;
   }
@@ -295,6 +297,7 @@
     font-size: 14px;
     line-height: 18px;
     max-width: 260px;
+    width: 100%;
     margin: 10px auto;
     text-align: center;
   }

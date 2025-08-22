@@ -83,6 +83,9 @@ A API pode ser acessada em: [http://api.aroundusrsp.chickenkiller.com/signup](ht
 
 ## Imagens e layout :
 
+### Página de Registro
+![Formulário de Login](./frontend/src/images/register-form.png)
+
 ### Página de Login
 ![Formulário de Login](./frontend/src/images/login-form.png)
 

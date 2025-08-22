@@ -156,6 +156,7 @@
   .content__title {
     font-size: 36px;
     line-height: 42px;
+    max-width: 330px;
   }
   
   .content__subtitle {
@@ -196,6 +197,7 @@
     font-size: 30px;
     line-height: 36px;
     text-align: center;
+    max-width: 270px;
   }
   
   .content__edit-button {
@@ -227,6 +229,7 @@
   .content__title {
     font-size: 24px;
     line-height: 30px;
+    max-width: 210px;
   }
   
   .content__subtitle {
@@ -281,7 +284,7 @@
   .content__title {
     font-size: 18px;
     line-height: 22px;
-    max-width: 200px;
+    max-width: 170px;
     width: 100%;
     height: auto;
     letter-spacing: normal;

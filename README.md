@@ -4,9 +4,9 @@ Este projeto estende o aplicativo React "Around The U.S." com um sistema complet
 
 ## Acesso ao Servidor
 
-O aplicativo está disponível em: [ http://aroundusrsp.chickenkiller.com]( http://aroundusrsp.chickenkiller.com)
+O aplicativo está disponível em: [ http://project-aroundus.strangled.net]( http://project-aroundus.strangled.net)
 
-A API pode ser acessada em: [http://api.aroundusrsp.chickenkiller.com/signup](http://api.aroundusrsp.chickenkiller.com/signup)
+A API pode ser acessada em: [http://api.project-aroundus.strangled.net/signup](http://api.project-aroundus.strangled.net/signup)
 
 ### Resumo de Implementação
 

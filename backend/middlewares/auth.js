@@ -1,43 +1,26 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/user');
 const { UNAUTHORIZED } = require('../utils/constants');
 
 // Middleware de autenticação JWT
-module.exports = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  // Verifica se o cabeçalho de autorização existe e está no formato correto
-  if (!authHeader) {
-    return res.status(UNAUTHORIZED).send({
-      message: 'Cabeçalho de autorização ausente'
-    });
-  }
-
-  // Verifica o formato do token (Bearer token)
-  const parts = authHeader.split(' ');
-  if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    return res.status(UNAUTHORIZED).send({
-      message: 'Formato de token inválido. Use: Bearer <token>'
-    });
-  }
-
-  const token = parts[1];
-
-  // Verifica se o token não está vazio
-  if (!token) {
-    return res.status(UNAUTHORIZED).send({
-      message: 'Token não fornecido'
-    });
-  }
-
+module.exports = async (req, res, next) => {
   try {
-    // Verifica e decodifica o token
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_SECRET // Usa apenas a variável de ambiente, sem fallback
-    );
+    const authHeader = req.headers.authorization;
 
-    // Adiciona os dados do usuário à requisição
-    req.user = payload;
+    if (!authHeader?.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Token não fornecido ou formato inválido' });
+    }
+
+    const token = authHeader.substring(7);
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Verificar se usuário ainda existe
+    const user = await User.findById(payload._id).select('-password');
+    if (!user) {
+      return res.status(401).json({ message: 'Usuário não encontrado' });
+    }
+
+    req.user = user;
     next();
   } catch (err) {
     console.error('Falha na verificação do token:', err);

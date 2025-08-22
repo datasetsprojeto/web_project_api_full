@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const { errors } = require('celebrate');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
@@ -16,13 +17,14 @@ const PORT = process.env.PORT || 3001;
 // Configuração do CORS
 const corsOptions = {
   origin: [
-    'http://localhost:3001',      // Frontend local
-    'http://localhost:5173',      // Vite dev server
-    process.env.FRONTEND_URL,     // URL de produção
+    'http://localhost:3001',
+    'http://localhost:5173',
+    process.env.FRONTEND_URL,
   ].filter(Boolean),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
@@ -42,9 +44,18 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+app.use(helmet());
 app.use(express.json());
 app.use(requestLogger);
 app.use(limiter);
+
+// Rota de teste de falha
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('O servidor travará agora');
+  }, 0);
+});
 
 // Rotas públicas
 app.post('/signin', validateLogin, login);

@@ -37,22 +37,29 @@ function Main({ onOpenPopup }) {
           onClick={() => onOpenPopup('new-card')}
         />
       </div>
-      <section className="cards">
-        {cards.length > 0 ? (
-          cards.map((card) => (
+       
+      {/* Mensagem quando não há cards */}
+      {cards.length === 0 && (
+        <div className="content__no-cards">
+          <p className="content__no-cards-text">Nenhum card encontrado. Adicione o primeiro!</p>
+        </div>
+      )}
+      
+      {/* Seção de cards (só aparece quando há cards) */}
+      {cards.length > 0 && (
+        <section className="cards">
+          {cards.map((card) => (
             <Card
               key={card._id}
               card={card}
+              currentUserId={currentUser._id}
+              onOpenPopup={onOpenPopup}
               onCardLike={handleCardLike}
               onCardDelete={handleCardDelete}
             />
-          ))
-        ) : (
-          <div className="cards__empty-message">
-            Nenhum card encontrado. Adicione o primeiro!
-          </div>
-        )}
-      </section>
+          ))}
+        </section>
+      )}
     </main>
   );
 }

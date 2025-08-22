@@ -51,7 +51,7 @@ export default function ConfirmDelete({ onConfirm, onCancel, isOwner }) {
           ) : (
             <>
               <p className="popup__text-confirm">
-                Você não pode deletar este card pois não é o criador.
+                Você não pode deletar este card, pois não é o criador.
               </p>
               <button
                 type="button"

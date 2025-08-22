@@ -126,14 +126,21 @@
   opacity: 0.8;
 }
 
-.cards__empty-message {
-  max-width: max-content;
+.content__no-cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
   width: 100%;
-  margin: 0 auto;
+  margin-top: 20px;
+}
+
+.content__no-cards-text {
+  color: #969696;
   font-size: 18px;
-  color: #999;
-  padding: 40px 20px;
-  font-style: italic;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
 }
 
 @media screen and (max-width: 875px) {

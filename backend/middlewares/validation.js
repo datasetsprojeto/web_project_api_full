@@ -2,7 +2,12 @@ const { celebrate, Joi } = require('celebrate');
 const validator = require('validator');
 
 const validateUrl = (value, helpers) => {
-  if (validator.isURL(value)) {
+  if (validator.isURL(value, {
+    protocols: ['http', 'https'],
+    require_protocol: true,
+    require_valid_protocol: true,
+    disallow_auth: true
+  })) {
     return value;
   }
   return helpers.error('string.uri');

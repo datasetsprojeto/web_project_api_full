@@ -6,7 +6,7 @@ Este projeto estende o aplicativo React "Around The U.S." com um sistema complet
 
 O aplicativo está disponível em: [ http://project-aroundus.strangled.net]( http://project-aroundus.strangled.net)
 
-A API pode ser acessada em: [http://api.project-aroundus.strangled.net/signup](http://api.project-aroundus.strangled.net/signup)
+A API pode ser acessada em: [http://api.project-aroundus.strangled.net/register](http://api.project-aroundus.strangled.net/register)
 
 ### Resumo de Implementação
 

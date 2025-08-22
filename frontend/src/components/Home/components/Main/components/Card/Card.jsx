@@ -1,24 +1,33 @@
-import { useState, useContext } from 'react';
-import { CurrentUserContext } from '../../../../../../contexts/CurrentUserContext';
+import { useState } from 'react';
 import ConfirmDelete from '../Popup/components/ConfirmDelete/ConfirmDelete';
 
-export default function Card({ card, onCardLike, onCardDelete }) {
-  const { currentUser } = useContext(CurrentUserContext);
+export default function Card(props) {
+  const { card, onOpenPopup, onCardLike, onCardDelete, currentUserId } = props;
+  const { name, link, owner } = card;
   const [showConfirm, setShowConfirm] = useState(false);
-  
-  const isOwner = card.owner === currentUser._id;
-  const isLiked = card.likes.some(id => id === currentUser._id);
-  
+  const [likeDisabled, setLikeDisabled] = useState(false);
+
+  // Verificação se o usuário atual é o dono do card
+  const isOwner = (owner._id === currentUserId) || (owner === currentUserId);
+
+  // Verificação de likes
+  const isLiked = card.likes?.some(like => {
+    if (typeof like === 'string') {
+      return like === currentUserId;
+    } else if (like && typeof like === 'object') {
+      return like._id === currentUserId;
+    }
+    return false;
+  });
+
   const cardLikeButtonClassName = `card__like-button ${
     isLiked ? 'card__like-button_is-active' : ''
   }`;
 
   const handleLikeClick = () => {
+    setLikeDisabled(true);
     onCardLike(card);
-  };
-
-  const handleDeleteClick = () => {
-    setShowConfirm(true);
+    setTimeout(() => setLikeDisabled(false), 500);
   };
 
   const handleConfirmDelete = () => {
@@ -30,46 +39,45 @@ export default function Card({ card, onCardLike, onCardDelete }) {
     setShowConfirm(false);
   };
 
-  const handleImageClick = () => {
-    // Abre o popup de imagem diretamente
-    document.dispatchEvent(new CustomEvent('openPopup', { 
-      detail: { type: 'image', data: card } 
-    }));
-  };
-
   return (
     <li className="cards__item">
+      {/* Botão no lugar da imagem */}
       <button
+        type="button"
         className="cards__trash"
-        onClick={handleDeleteClick}
-        aria-label="Excluir card"
+        aria-label="Apagar cartão"
+        onClick={() => setShowConfirm(true)}
       />
-      
-      <img
-        src={card.link}
-        alt={card.name}
-        className="cards__image"
-        onClick={handleImageClick}
-      />
-      
-      <div className="cards__desc">
-        <h2 className="cards__title">{card.name}</h2>
-        <div className="cards__like-container">
-          <button
-            className={cardLikeButtonClassName}
-            onClick={handleLikeClick}
-            aria-label="Curtir"
-          />
-          <span className="cards__like-count">{card.likes.length}</span>
-        </div>
-      </div>
-      
+
       {showConfirm && (
         <ConfirmDelete 
           onConfirm={handleConfirmDelete}
           onCancel={handleCancelDelete}
+          isOwner={isOwner}
         />
       )}
+      
+      <img
+        src={link}
+        alt={`Foto do cartão, que mostra o ${name}`}
+        className="cards__image"
+        onClick={() => onOpenPopup('image', card)}
+      />
+      
+      <div className="cards__desc">
+        <h2 className="cards__title">{name}</h2>
+        <div className="cards__like-container">
+          <button
+            className={cardLikeButtonClassName}
+            aria-label="Curtir cartão"
+            onClick={handleLikeClick}
+            disabled={likeDisabled}
+          />
+          <span className="cards__like-count">
+            {card.likes?.length || 0}
+          </span>
+        </div>
+      </div>
     </li>
   );
 }

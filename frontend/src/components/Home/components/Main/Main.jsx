@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { CurrentUserContext } from '../../../../contexts/CurrentUserContext.js';
 import Card from './components/Card/Card';
+import ImagePopup  from './components/ImagePopup/ImagePopup.jsx';
 
 function Main({ onOpenPopup }) {
   const { currentUser, cards, handleCardLike, handleCardDelete } = useContext(CurrentUserContext);

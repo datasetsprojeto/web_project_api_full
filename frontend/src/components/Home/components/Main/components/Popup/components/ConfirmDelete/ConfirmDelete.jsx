@@ -37,22 +37,19 @@ export default function ConfirmDelete({ onConfirm, onCancel, isOwner }) {
           {isOwner ? (
             <>
               <h3 className="popup__title-confirm">Tem certeza?</h3>
-              <p className="popup__text-confirm">
-                Esta ação não pode ser desfeita. O card será permanentemente excluído.
-              </p>
               <button
                 type="button"
                 className="popup__confirm-button"
                 onClick={onConfirm}
               >
-                Sim, excluir
+                Sim
               </button>
             </>
           ) : (
             <>
-              <p className="popup__text-confirm">
-                Você não pode deletar este card, pois não é o criador.
-              </p>
+              <h3 className="popup__title-confirm">
+                Você não pode deletar esse card, você não é o criador!
+              </h3>
               <button
                 type="button"
                 className="popup__confirm-button"

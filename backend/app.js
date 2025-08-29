@@ -14,9 +14,16 @@ const { NOT_FOUND, SERVER_ERROR } = require('./utils/constants');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configuração do CORS
+// Configuração do CORS atualizada
 const corsOptions = {
   origin: [
+    'https://project-aroundus.strangled.net',
+    'http://project-aroundus.strangled.net',
+    'https://www.project-aroundus.strangled.net',
+    'http://www.project-aroundus.strangled.net',
+    'https://api.project-aroundus.strangled.net',
+    'http://api.project-aroundus.strangled.net',
+    'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:5173',
     process.env.FRONTEND_URL,

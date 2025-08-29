@@ -71,9 +71,9 @@ A API pode ser acessada em: [http://api.project-aroundus.strangled.net/register]
 ## Instalação
 
 1. Clonar repositório:
-   ```git clone https://github.com/seu-usuario web_project_around_auth.git```
+   ```git clone https://github.com/datasetsprojeto/web_project_api_full.git```
 2. Entrar no diretório:
-   ```cd web_project_around_auth```
+   ```cd web_project_api_full```
 3. Instalar dependências:
 ```cd backend && npm install```
 ```cd ../frontend && npm install ```

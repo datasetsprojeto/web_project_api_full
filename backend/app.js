@@ -14,27 +14,44 @@ const { NOT_FOUND, SERVER_ERROR } = require('./utils/constants');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Configuração do CORS atualizada
+// Improved CORS configuration
+const allowedOrigins = [
+  'https://project-aroundus.strangled.net',
+  'http://project-aroundus.strangled.net',
+  'https://www.project-aroundus.strangled.net',
+  'http://www.project-aroundus.strangled.net',
+  'https://api.project-aroundus.strangled.net',
+  'http://api.project-aroundus.strangled.net',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:5173',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 const corsOptions = {
-  origin: [
-    'https://project-aroundus.strangled.net',
-    'http://project-aroundus.strangled.net',
-    'https://www.project-aroundus.strangled.net',
-    'http://www.project-aroundus.strangled.net',
-    'https://api.project-aroundus.strangled.net',
-    'http://api.project-aroundus.strangled.net',
-    'http://localhost:3000',
-    'http://localhost:3001',
-    'http://localhost:5173',
-    process.env.FRONTEND_URL,
-  ].filter(Boolean),
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
+  preflightContinue: false,
 };
 
+// Apply CORS middleware before other middleware
 app.use(cors(corsOptions));
+
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
 
 // Conexão com MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/aroundb')
@@ -58,9 +75,13 @@ app.use(requestLogger);
 app.use(limiter);
 
 // Rota de teste de falha
-app.get('/crash-test', () => {
+app.get('/crash-test', (req, res, next) => {
   setTimeout(() => {
-    throw new Error('O servidor travará agora');
+    try {
+      throw new Error('O servidor travará agora');
+    } catch (err) {
+      next(err);
+    }
   }, 0);
 });
 
@@ -87,9 +108,18 @@ app.use(errors());
 // Middleware de erro global
 app.use((err, req, res, next) => {
   console.error('Unhandled Error:', err);
+
+  // Handle CORS errors
+  if (err.message === 'Not allowed by CORS') {
+    return res.status(403).json({
+      message: 'CORS policy: Origin not allowed'
+    });
+  }
+
   res.status(SERVER_ERROR).send({ message: 'Erro interno do servidor' });
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`✅ CORS enabled for origins: ${allowedOrigins.join(', ')}`);
 });
